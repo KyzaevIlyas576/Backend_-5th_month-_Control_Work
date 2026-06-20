@@ -31,10 +31,23 @@
 # ]
 
 from django.urls import path
+from .views import (
+    PostListCreateView,
+    PostDetailView,
+    CommentListView,
+    CommentCreateView,
+)
 
 urlpatterns = [
-    path('api/v1/posts/', PostListCreateView.as_view()),
-    path('api/v1/posts/<int:pk>/', PostDetailView.as_view()),
-    path('api/v1/posts/<int:id>/comments/', CommentListView.as_view()),
-    path('api/v1/posts/<int:id>/comments/create/', CommentCreateView.as_view()),
+    path('posts/', PostListCreateView.as_view()),
+    path('posts/<int:pk>/', PostDetailView.as_view()),
+    path('posts/<int:id>/comments/', CommentListView.as_view()),
+    path('posts/<int:id>/comments/create/', CommentCreateView.as_view()),
 ]
+
+# urlpatterns = [
+#     path('api/v1/posts/', PostListCreateView.as_view()),
+#     path('api/v1/posts/<int:pk>/', PostDetailView.as_view()),
+#     path('api/v1/posts/<int:id>/comments/', CommentListView.as_view()),
+#     path('api/v1/posts/<int:id>/comments/create/', CommentCreateView.as_view()),
+# ]

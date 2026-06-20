@@ -1,5 +1,9 @@
 from django.shortcuts import render
+from django.db.models import Q
 from rest_framework import generics, permissions
+from .serializers import CommentSerializer, PostSerializer
+from .models import Comment, Post
+from .permissions import IsOwner
 
 
 class PostListCreateView(generics.ListCreateAPIView):
@@ -9,7 +13,7 @@ class PostListCreateView(generics.ListCreateAPIView):
         user = self.request.user
         if user.is_authenticated:
             return Post.objects.filter(
-                models.Q(is_published=True) | models.Q(author=user)
+                Q(is_published=True) | Q(author=user)
             )
         return Post.objects.filter(is_published=True)
 
@@ -25,11 +29,17 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PUT', 'DELETE']:
             return [permissions.IsAuthenticated(), IsOwner()]
         return [permissions.AllowAny()]
+
+class CommentListView(generics.ListAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        post_id = self.kwargs['id']
+        return Comment.objects.filter(post_id=post_id)
     
 
 class CommentCreateView(generics.CreateAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         post_id = self.kwargs['id']
@@ -39,11 +49,5 @@ class CommentCreateView(generics.CreateAPIView):
         )
 
 
-class CommentListView(generics.ListAPIView):
-    serializer_class = CommentSerializer
-
-    def get_queryset(self):
-        return Comment.objects.filter(
-            post_id=self.kwargs['id'],
-            is_approved=True
-        )
+def perform_create(self, serializer):
+    serializer.save(author=self.request.user)
